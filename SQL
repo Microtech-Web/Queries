@@ -1,0 +1,103 @@
+1. SQL Basics
+
+What SQL is (Structured Query Language).
+
+Different types of SQL commands:
+
+DDL (Data Definition Language): CREATE, ALTER, DROP
+
+DML (Data Manipulation Language): INSERT, UPDATE, DELETE
+
+DQL (Data Query Language): SELECT
+
+DCL (Data Control Language): GRANT, REVOKE
+
+TCL (Transaction Control Language): COMMIT, ROLLBACK, SAVEPOINT
+
+2. Working with Tables
+
+Creating tables (CREATE TABLE)
+
+Modifying tables (ALTER TABLE)
+
+Constraints:
+
+PRIMARY KEY, FOREIGN KEY
+
+UNIQUE, NOT NULL, CHECK, DEFAULT
+
+3. Data Retrieval (Queries)
+
+Basic SELECT statements
+
+Filtering data with WHERE
+
+Operators: =, !=, <, >, BETWEEN, LIKE, IN
+
+Sorting with ORDER BY
+
+Limiting results with LIMIT / TOP
+
+4. Joins & Relationships
+
+INNER JOIN
+
+LEFT JOIN / RIGHT JOIN
+
+FULL OUTER JOIN
+
+SELF JOIN
+
+Understanding one-to-one, one-to-many, many-to-many relationships
+
+5. Aggregations & Grouping
+
+Aggregate functions: COUNT, SUM, AVG, MIN, MAX
+
+Grouping results: GROUP BY
+
+Filtering groups: HAVING
+
+6. Subqueries
+
+Nested SELECT queries
+
+IN, EXISTS, ANY, ALL with subqueries
+
+7. Set Operations
+
+UNION vs UNION ALL
+
+INTERSECT
+
+EXCEPT / MINUS
+
+8. Indexes & Performance
+
+Creating and using indexes (CREATE INDEX)
+
+Understanding how indexes speed up queries
+
+9. Transactions
+
+BEGIN, COMMIT, ROLLBACK
+
+ACID properties (Atomicity, Consistency, Isolation, Durability)
+
+10. Views & Stored Procedures
+
+Creating views (CREATE VIEW)
+
+Stored procedures & functions (depends on SQL flavor)
+
+Triggers
+
+11. Advanced Topics (optional but useful)
+
+Window functions (ROW_NUMBER, RANK, LEAD, LAG)
+
+Common Table Expressions (CTEs) with WITH
+
+Normalization & database design
+
+Partitioning & sharding basics
