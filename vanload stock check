@@ -1,0 +1,26 @@
+-- Latest Van Loading Date per UserID + VanID
+;WITH LatestVanDateFull AS (
+    SELECT 
+        UserId,
+        VanId,
+        MAX([Date]) AS MaxDate
+    FROM dbo.VanLoadingSheet
+    WHERE CompanyId = 8
+    GROUP BY UserId, VanId
+)
+
+-- Final Combined Result
+SELECT 
+    vls.UserId,
+    vls.VanId,
+    vls.ItemId,
+    SUM(ISNULL(vls.VTStock, 0)) AS TotalVTStock,
+    SUM(ISNULL(vls.ReturnQty, 0)) AS TotalVTStockReturn
+FROM dbo.VanLoadingSheet vls
+INNER JOIN LatestVanDateFull lvd 
+    ON vls.UserId = lvd.UserId
+    AND vls.VanId = lvd.VanId
+    AND vls.[Date] = lvd.MaxDate
+WHERE vls.CompanyId = 8
+and vls.ItemId = 120
+GROUP BY vls.UserId, vls.VanId, vls.ItemId;
