@@ -1,0 +1,28 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------
+Method 1: Startup Folder
+
+Press Win + R, type shell:startup, and press Enter.
+
+This opens the Startup folder.
+
+Copy a shortcut of your app into this folder.
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+Windows (Task Scheduler)
+
+Press Win + R, type taskschd.msc, press Enter.
+
+In Task Scheduler, click Create Basic Task.
+
+Name it (e.g., "Open My App").
+
+Choose Daily.
+
+Set the time to 4:50 PM.
+
+Under Action, choose Start a program.
+
+Browse to your app’s .exe file.
+
+Finish → Done.
+
