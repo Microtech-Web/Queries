@@ -1,0 +1,31 @@
+SELECT 
+    i.[IID],
+    i.[ItemID],
+    i.[ItemType],
+    i.[ParentIID],
+    i.[Qty],
+    it.ItemName,
+	i.IsDeleted
+FROM [SuitApps_TopsFood_Soft].[dbo].[Ingredients] i
+LEFT JOIN item it ON i.ItemID = it.ItemID
+INNER JOIN (
+    SELECT ItemID, Qty
+    FROM [SuitApps_TopsFood_Soft].[dbo].[Ingredients]
+    WHERE IsDeleted = 0
+    GROUP BY ItemID, Qty
+    HAVING COUNT(*) > 1
+) dup ON i.ItemID = dup.ItemID AND i.Qty = dup.Qty
+WHERE i.IsDeleted = 0
+ORDER BY i.ItemID,i.IID,ItemName,  i.Qty;
+
+select IngredientsDetails.*, item.itemname from IngredientsDetails left join item on IngredientsDetails.productid=item.itemid  
+where IID in (784,785) order by IID
+
+UPDATE [Ingredients]
+SET IsDeleted = 1
+WHERE IID IN (785);
+
+--UPDATE [Ingredients]
+--SET ItemID = 4467
+--WHERE IID IN (136);
+
