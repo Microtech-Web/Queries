@@ -1,0 +1,10 @@
+SELECT 
+    LTRIM(RTRIM(LOWER([ItemName]))) AS NormalizedName,
+    COUNT(*) AS DuplicateCount,
+    STRING_AGG([ItemName], ', ') AS OriginalNames,
+    STRING_AGG(CAST(ItemID AS NVARCHAR(50)), ', ') AS ItemIDs
+FROM [dbo].[Item]
+WHERE IsDeleted = 0
+GROUP BY LTRIM(RTRIM(LOWER([ItemName])))
+HAVING COUNT(*) > 1
+ORDER BY DuplicateCount DESC, NormalizedName;
