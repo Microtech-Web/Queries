@@ -1,0 +1,11 @@
+SELECT  
+    t.name AS TriggerName,
+    s.name AS SchemaName,
+    OBJECT_NAME(t.parent_id) AS TableName,
+    t.is_disabled AS IsDisabled,
+    t.create_date AS CreatedOn,
+    t.modify_date AS ModifiedOn
+FROM sys.triggers t
+INNER JOIN sys.objects o ON t.parent_id = o.object_id
+INNER JOIN sys.schemas s ON o.schema_id = s.schema_id
+ORDER BY s.name, t.name;
