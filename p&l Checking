@@ -1,0 +1,27 @@
+SELECT 
+    ach.Type AS FromType,
+	ACH.AccountName AS FROMNAME,
+	AC.debit,
+	ac.credit,
+    acht.Type AS ToType,
+  acht.AccountName AS toNAME,
+	ac.narration,
+	ac.Othernarration,
+    ac.*
+FROM AcTransaction ac
+LEFT JOIN AcTransactionHeads ach
+    ON ac.FCode = ach.Code  
+LEFT JOIN AcTransactionHeads acht
+    ON ac.TCode = acht.Code
+WHERE ac.IsDeleted = 0
+  AND (
+        ach.TypeUnder IN (28,30,32,34,29,31,33,35,48,51,52,55,56,57,43,44,53,54,59)
+        OR acht.TypeUnder IN (28,30,32,34,29,31,33,35,48,51,52,55,56,57,43,44,53,54,59)
+      )
+  AND (
+        ISNULL(ach.Type, '') NOT IN ('Purchase', 'Sale')
+        AND ISNULL(acht.Type, '') NOT IN ('Purchase', 'Sale')
+		and ac.Narration not in ('OpenigVoucher','PurFreight','PurRoundoff','roundoff','DiscountAllowed')
+      );
+
+
