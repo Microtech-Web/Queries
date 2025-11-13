@@ -1,0 +1,28 @@
+DECLARE @ItemIDs TABLE (ItemID INT);
+
+INSERT INTO @ItemIDs (ItemID)
+VALUES (3393),(3410),(3421),(3422),(3439),(3440),(3441),(3464),(3470),(3483),
+(4125),(3513),(3524),(3525),(3529),(3542),(3548),(3549),(3550),(3564),
+(3594),(3595),(3599),(3600),(3601),(3618),(3619),(3622),(3623),(3633),
+(3634),(3636),(3637),(3638),(3646),(3647),(3648),(3649),(3651),(3652),
+(3669),(3682),(3683),(3684),(3685),(3686),(3728),(3750),(4260),(4432),
+(4447),(4526),(4607),(4610),(4611),(4633),(4648),(4677),(4686),(4749),
+(4756),(4757),(4758),(4764),(4766),(4788),(4831),(4832),(5109),(5119),
+(2254),(2257),(2277),(2442),(2750),(4361),(4914);
+-- add more
+
+UPDATE Item
+SET IsDeleted = 1
+WHERE ItemID IN (SELECT ItemID FROM @ItemIDs);
+
+UPDATE ItemDetails
+SET IsDeleted = 1
+WHERE ItemID IN (SELECT ItemID FROM @ItemIDs);
+
+UPDATE ItemDetailsBatch
+SET IsDeleted = 1
+WHERE ItemID IN (SELECT ItemID FROM @ItemIDs);
+
+UPDATE SuitApps_TopsFood_App.[dbo].Product
+SET IsDeleted = 1
+WHERE ItemID IN (SELECT ItemID FROM @ItemIDs);
