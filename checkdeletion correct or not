@@ -1,0 +1,20 @@
+SELECT  I.[ItemID]
+      ,I.[ItemName]
+      , ITM.ItemTypeName
+      ,I.[IsDeleted] AS ITEMDELETED
+	  , ID.IsDeleted AS DETAILSDELETED
+	  , IDB.IsDeleted AS BATCHDELETED
+	  , P.IsDeleted AS PRODUCTDELETED
+  FROM [SuitApps_TopsFood_Soft].[dbo].[Item] I
+  LEFT JOIN ItemTypeMaster ITM ON I.ItemType = ITM.TypeID 
+  LEFT JOIN ItemDetails ID ON I.ItemID = ID.ItemID
+  LEFT JOIN ItemDetailsBatch IDB ON I.ItemID = IDB.ItemID
+  LEFT JOIN SuitApps_TopsFood_App.[dbo].Product P ON I.ItemID=P.ItemID
+
+
+  WHERE I.IsDeleted=0
+
+  ORDER BY I.[IsDeleted], ID.IsDeleted, IDB.IsDeleted,P.IsDeleted
+
+
+
