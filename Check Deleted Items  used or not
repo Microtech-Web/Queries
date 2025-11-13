@@ -1,0 +1,43 @@
+SELECT 
+      p.ProductID,
+      p.ItemID,
+      p.ItemName,
+      p.IsDeleted AS productdeleted,
+      s.IsDeleted AS itemdeleted,
+      s.DeletedBy,
+      s.DeletedDateAndTime,
+      u.Name,
+
+      -- Check Ingredients table
+      CASE 
+          WHEN EXISTS (SELECT 1 
+                       FROM [SuitApps_TopsFood_Soft].[dbo].Ingredients i 
+                       WHERE i.ItemID = s.ItemID) 
+               THEN 1 ELSE 0 
+      END AS UsedInIngredients,
+
+      -- Check IngredientsDetails table
+      CASE 
+          WHEN EXISTS (SELECT 1 
+                       FROM [SuitApps_TopsFood_Soft].[dbo].IngredientsDetails id 
+                       WHERE id.ProductID = s.ItemID) 
+               THEN 1 ELSE 0 
+      END AS UsedInIngredientsDetails,
+
+      -- Check AliaseSalesDetails table
+      CASE 
+          WHEN EXISTS (SELECT 1 
+                       FROM [SuitApps_TopsFood_Soft].[dbo].AliaseSalesDetails a 
+                       WHERE a.ItemID = s.ItemID) 
+               THEN 1 ELSE 0 
+      END AS UsedInAliaseSalesDetails
+
+FROM [SuitApps_TopsFood_App].[dbo].[Product] p
+LEFT JOIN [SuitApps_TopsFood_Soft].[dbo].[Item] s 
+       ON s.ItemID = p.ItemID
+LEFT JOIN [SuitApps_TopsFood_Soft].[dbo].[UserTable] u 
+       ON s.DeletedBy = u.UserId
+
+WHERE p.IsDeleted = 1
+
+ORDER BY s.DeletedDateAndTime;
