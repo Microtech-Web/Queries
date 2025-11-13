@@ -1,20 +1,94 @@
-SELECT  I.[ItemID]
-      ,I.[ItemName]
-      , ITM.ItemTypeName
-      ,I.[IsDeleted] AS ITEMDELETED
-	  , ID.IsDeleted AS DETAILSDELETED
-	  , IDB.IsDeleted AS BATCHDELETED
-	  , P.IsDeleted AS PRODUCTDELETED
-  FROM [SuitApps_TopsFood_Soft].[dbo].[Item] I
-  LEFT JOIN ItemTypeMaster ITM ON I.ItemType = ITM.TypeID 
-  LEFT JOIN ItemDetails ID ON I.ItemID = ID.ItemID
-  LEFT JOIN ItemDetailsBatch IDB ON I.ItemID = IDB.ItemID
-  LEFT JOIN SuitApps_TopsFood_App.[dbo].Product P ON I.ItemID=P.ItemID
+SELECT *
+FROM (
+    SELECT  
+          I.ItemID,
+          I.ItemName,
+          CASE 
+              WHEN 
+                    ISNULL(AliasCnt.Cnt, 0) > 0 OR
+                    ISNULL(BillCnt.Cnt, 0) > 0 OR
+                    ISNULL(BillRetCnt.Cnt, 0) > 0 OR
+                    ISNULL(IngCnt.Cnt, 0) > 0 OR
+                    ISNULL(IngDetCnt.Cnt, 0) > 0 OR
+                    ISNULL(ProdAllocCnt.Cnt, 0) > 0 OR
+                    ISNULL(PurCnt.Cnt, 0) > 0
+              THEN 1 ELSE 0 
+          END AS TransExist,
+          ITM.ItemTypeName,
+          I.IsDeleted AS ITEMDELETED,
+          ID.IsDeleted AS DETAILSDELETED,
+          IDB.IsDeleted AS BATCHDELETED,
+          P.IsDeleted AS PRODUCTDELETED,
 
+          ISNULL(AliasCnt.Cnt, 0)       AS AliasSales,
+          ISNULL(BillCnt.Cnt, 0)        AS Billing,
+          ISNULL(BillRetCnt.Cnt, 0)     AS BillingReturn,
+          ISNULL(IngCnt.Cnt, 0)         AS Ingredients,
+          ISNULL(IngDetCnt.Cnt, 0)      AS IngredientsDetails,
+          ISNULL(ProdAllocCnt.Cnt, 0)   AS JobCard,
+          ISNULL(PurCnt.Cnt, 0)         AS Purchase
 
-  WHERE I.IsDeleted=0
+    FROM [SuitApps_TopsFood_Soft].[dbo].[Item] I
+    LEFT JOIN ItemTypeMaster ITM ON I.ItemType = ITM.TypeID 
+    LEFT JOIN ItemDetails ID ON I.ItemID = ID.ItemID
+    LEFT JOIN ItemDetailsBatch IDB ON I.ItemID = IDB.ItemID
+    LEFT JOIN SuitApps_TopsFood_App.[dbo].Product P ON I.ItemID = P.ItemID
 
-  ORDER BY I.[IsDeleted], ID.IsDeleted, IDB.IsDeleted,P.IsDeleted
+    LEFT JOIN (
+        SELECT ItemID, COUNT(*) AS Cnt 
+        FROM AliaseSalesDetails 
+		left join AliaseSales on AliaseSalesDetails.DSID = AliaseSales.DSID 
+		where AliaseSales.IsDeletedBy=0
+        GROUP BY ItemID
+    ) AliasCnt ON AliasCnt.ItemID = I.ItemID
 
+    LEFT JOIN (
+        SELECT ItemID, COUNT(*) AS Cnt 
+        FROM BillinigDetails 
+		left join Billing on BillinigDetails.BillID = Billing.BillID
+		where Billing.IsDeleted=0
+        GROUP BY ItemID
+    ) BillCnt ON BillCnt.ItemID = I.ItemID
 
+    LEFT JOIN (
+        SELECT ItemID, COUNT(*) AS Cnt 
+        FROM BillinigReturnDetails 
+		left join BillingReturn on BillinigReturnDetails.BillID = BillingReturn.BillID
+		where BillingReturn.IsDeleted=0
+        GROUP BY ItemID
+    ) BillRetCnt ON BillRetCnt.ItemID = I.ItemID
 
+    LEFT JOIN (
+        SELECT ItemID, COUNT(*) AS Cnt 
+        FROM Ingredients 
+		where IsDeleted=0
+        GROUP BY ItemID
+    ) IngCnt ON IngCnt.ItemID = I.ItemID
+
+    LEFT JOIN (
+        SELECT ProductID, COUNT(*) AS Cnt 
+        FROM IngredientsDetails
+		where IsDeleted=0
+        GROUP BY ProductID
+    ) IngDetCnt ON IngDetCnt.ProductID = I.ItemID
+
+    LEFT JOIN (
+        SELECT ItemID, COUNT(*) AS Cnt 
+        FROM ProductionAllocDetails
+		where IsDeleted=0
+        GROUP BY ItemID
+    ) ProdAllocCnt ON ProdAllocCnt.ItemID = I.ItemID
+
+    LEFT JOIN (
+        SELECT ItemID, COUNT(*) AS Cnt 
+        FROM PurchaseDetails
+		left join Purchase on PurchaseDetails.PurchaseID=Purchase.PurchaseID
+		where Purchase.IsDeleted=0
+        GROUP BY ItemID
+    ) PurCnt ON PurCnt.ItemID = I.ItemID
+
+    WHERE I.IsDeleted = 1
+) X
+WHERE X.TransExist = 1
+
+order by x.ItemID  ;
