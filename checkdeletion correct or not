@@ -6,6 +6,7 @@ FROM (
           CASE 
               WHEN 
                     ISNULL(AliasCnt.Cnt, 0) > 0 OR
+					ISNULL(EstrimateCnt.Cnt, 0) > 0 OR
                     ISNULL(BillCnt.Cnt, 0) > 0 OR
                     ISNULL(BillRetCnt.Cnt, 0) > 0 OR
                     ISNULL(IngCnt.Cnt, 0) > 0 OR
@@ -21,6 +22,7 @@ FROM (
           P.IsDeleted AS PRODUCTDELETED,
 
           ISNULL(AliasCnt.Cnt, 0)       AS AliasSales,
+		  ISNULL(EstrimateCnt.Cnt, 0)       AS Estrimate,
           ISNULL(BillCnt.Cnt, 0)        AS Billing,
           ISNULL(BillRetCnt.Cnt, 0)     AS BillingReturn,
           ISNULL(IngCnt.Cnt, 0)         AS Ingredients,
@@ -41,6 +43,16 @@ FROM (
 		where AliaseSales.IsDeletedBy=0
         GROUP BY ItemID
     ) AliasCnt ON AliasCnt.ItemID = I.ItemID
+
+
+	 LEFT JOIN (
+        SELECT ItemID, COUNT(*) AS Cnt 
+        FROM BillinigDetailsForEstimate 
+		left join BillingForEstrimate on BillinigDetailsForEstimate.BillID = BillingForEstrimate.BillID 
+		where BillingForEstrimate.IsDeleted=0
+        GROUP BY ItemID
+    ) EstrimateCnt ON EstrimateCnt.ItemID = I.ItemID
+
 
     LEFT JOIN (
         SELECT ItemID, COUNT(*) AS Cnt 
@@ -91,4 +103,4 @@ FROM (
 ) X
 WHERE X.TransExist = 1
 
-order by x.ItemID  ;
+order by  x.ItemTypeName, x.ItemID ;
