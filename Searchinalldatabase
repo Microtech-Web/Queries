@@ -1,0 +1,6 @@
+EXEC sp_msforeachdb '
+USE [?];
+SELECT DB_NAME() AS DatabaseName, *
+FROM sys.procedures
+WHERE name LIKE ''%EmpRouteSearch%''';
+
