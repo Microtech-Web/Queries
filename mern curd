@@ -1,0 +1,267 @@
+🔹 STEP 1: Install Required Software
+1️⃣ Node.js
+
+👉 https://nodejs.org
+
+Verify:
+
+node -v
+npm -v
+
+2️⃣ MongoDB
+
+Choose ONE:
+
+✅ Option A (Recommended): MongoDB Atlas (Cloud – Free)
+
+👉 https://www.mongodb.com/atlas
+
+Create account
+
+Create FREE Cluster
+
+Get connection string
+
+Example:
+
+mongodb+srv://username:password@cluster0.mongodb.net/merncrud
+
+✅ Option B: Local MongoDB
+
+👉 https://www.mongodb.com/try/download/community
+
+Run:
+
+mongod
+
+🔹 STEP 2: Backend Setup (Node + Express + MongoDB)
+1️⃣ Create backend folder
+mkdir backend
+cd backend
+npm init -y
+
+2️⃣ Install backend dependencies
+npm install express mongoose cors dotenv nodemon
+
+3️⃣ Backend Folder Structure
+backend/
+│── server.js
+│── .env
+│── config/
+│    └── db.js
+│── models/
+│    └── User.js
+│── routes/
+│    └── userRoutes.js
+
+🔹 STEP 3: MongoDB Connection
+.env
+PORT=5000
+MONGO_URI=mongodb+srv://username:password@cluster0.mongodb.net/merncrud
+
+config/db.js
+const mongoose = require("mongoose");
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI);
+    console.log("MongoDB Connected");
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
+};
+
+module.exports = connectDB;
+
+🔹 STEP 4: User Model (Schema)
+models/User.js
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true
+    }
+  },
+  { timestamps: true }
+);
+
+module.exports = mongoose.model("User", userSchema);
+
+🔹 STEP 5: CRUD Routes (API)
+routes/userRoutes.js
+const express = require("express");
+const router = express.Router();
+const User = require("../models/User");
+
+/* CREATE */
+router.post("/", async (req, res) => {
+  try {
+    const user = await User.create(req.body);
+    res.json(user);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+});
+
+/* READ */
+router.get("/", async (req, res) => {
+  const users = await User.find();
+  res.json(users);
+});
+
+/* UPDATE */
+router.put("/:id", async (req, res) => {
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  );
+  res.json(user);
+});
+
+/* DELETE */
+router.delete("/:id", async (req, res) => {
+  await User.findByIdAndDelete(req.params.id);
+  res.json({ message: "User deleted" });
+});
+
+module.exports = router;
+
+🔹 STEP 6: Express Server
+server.js
+const express = require("express");
+const cors = require("cors");
+require("dotenv").config();
+
+const connectDB = require("./config/db");
+const userRoutes = require("./routes/userRoutes");
+
+connectDB();
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+app.use("/api/users", userRoutes);
+
+app.listen(process.env.PORT, () =>
+  console.log(`Server running on port ${process.env.PORT}`)
+);
+
+▶ Run Backend
+npx nodemon server.js
+
+
+✔ API running at http://localhost:5000/api/users
+
+🔹 STEP 7: Frontend Setup (React)
+1️⃣ Create React App
+npx create-react-app frontend
+cd frontend
+npm install axios
+npm start
+
+2️⃣ Folder Structure
+src/
+│── App.js
+│── components/
+│    └── UserCrud.js
+
+🔹 STEP 8: React CRUD Component
+components/UserCrud.js
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+const API = "http://localhost:5000/api/users";
+
+function UserCrud() {
+  const [users, setUsers] = useState([]);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [editId, setEditId] = useState(null);
+
+  const loadUsers = async () => {
+    const res = await axios.get(API);
+    setUsers(res.data);
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const submitHandler = async () => {
+    if (editId) {
+      await axios.put(`${API}/${editId}`, { name, email });
+      setEditId(null);
+    } else {
+      await axios.post(API, { name, email });
+    }
+    setName("");
+    setEmail("");
+    loadUsers();
+  };
+
+  const editUser = (user) => {
+    setEditId(user._id);
+    setName(user.name);
+    setEmail(user.email);
+  };
+
+  const deleteUser = async (id) => {
+    await axios.delete(`${API}/${id}`);
+    loadUsers();
+  };
+
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>MERN CRUD</h2>
+
+      <input
+        placeholder="Name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
+      <input
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+
+      <button onClick={submitHandler}>
+        {editId ? "Update" : "Add"}
+      </button>
+
+      <hr />
+
+      <ul>
+        {users.map((u) => (
+          <li key={u._id}>
+            {u.name} - {u.email}
+            <button onClick={() => editUser(u)}>Edit</button>
+            <button onClick={() => deleteUser(u._id)}>Delete</button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default UserCrud;
+
+App.js
+import UserCrud from "./components/UserCrud";
+
+function App() {
+  return <UserCrud />;
+}
+
+export default App;
